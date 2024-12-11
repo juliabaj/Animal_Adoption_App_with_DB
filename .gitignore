@@ -1,0 +1,28 @@
+# Ignorowanie plików pycache
+__pycache__/
+*.pyc
+*.pyo
+
+# Ignorowanie plików środowiska wirtualnego
+venv/
+env/
+*.egg-info/
+
+# Ignorowanie pliku bazy danych SQLite
+db.sqlite3
+
+# Ignorowanie pliku z konfiguracją bazy danych (np. .env)
+.env
+
+# Ignorowanie plików logów
+*.log
+
+# Ignorowanie plików migracji Django (jeśli chcesz je generować na nowo)
+*/migrations/*
+
+# Ignorowanie plików zależności
+node_modules/
+
+# Ignorowanie plików systemowych
+.DS_Store
+Thumbs.db
