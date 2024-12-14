@@ -8,6 +8,36 @@
 from django.db import models
 
 
+class Owners(models.Model):
+    owner_id = models.AutoField(primary_key=True)
+    owner_name = models.CharField(max_length=20)
+    address = models.CharField(max_length=100)
+    phone_number = models.CharField(max_length=9)
+    email = models.CharField(max_length=50)
+
+class Users(models.Model):
+    user_id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=20)
+    passwd = models.CharField(max_length=20)
+
+class Animals(models.Model):
+    animal_id = models.AutoField(primary_key=True)  # Primary Key
+    animal_name = models.CharField(max_length=10)
+    birth_date = models.DateTimeField()
+    species = models.CharField(max_length=20)
+    gender = models.CharField(max_length=6, choices=[('male', 'Male'), ('female', 'Female')])
+    owner_id = models.ForeignKey('Owners', on_delete=models.CASCADE)
+
+class HealthRecords(models.Model):
+    animal_id = models.ForeignKey('Animals', on_delete=models.CASCADE)
+    diagnosis = models.CharField(max_length=100)
+    veterinarian = models.CharField(max_length=50)
+    treatment = models.CharField(max_length=50)
+    chipped = models.BooleanField()
+    vaccinated = models.BooleanField()
+
+
+
 class AuthGroup(models.Model):
     name = models.CharField(unique=True, max_length=150)
 
