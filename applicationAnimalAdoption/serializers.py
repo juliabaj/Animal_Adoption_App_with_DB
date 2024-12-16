@@ -1,5 +1,6 @@
 from rest_framework import serializers
-from .models import Owners, Users, Animals, HealthRecords
+from .models import Owners, Users, Animals, HealthRecords, Admins
+
 
 class OwnersSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,4 +20,9 @@ class AnimalsSerializer(serializers.ModelSerializer):
 class HealthRecordsSerializer(serializers.ModelSerializer):
     class Meta:
         model = HealthRecords
+        fields = '__all__'
+
+class AdminsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Admins
         fields = '__all__'

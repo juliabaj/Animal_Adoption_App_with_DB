@@ -36,6 +36,10 @@ class HealthRecords(models.Model):
     chipped = models.BooleanField()
     vaccinated = models.BooleanField()
 
+class Admins(models.Model):
+    admin_id = models.AutoField(primary_key=True)
+    username = models.CharField(max_length=20)
+    passwd = models.CharField(max_length=20)
 
 
 class AuthGroup(models.Model):

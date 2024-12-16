@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from django.http import HttpResponse
 from rest_framework import viewsets
-from .models import Owners, Users, Animals, HealthRecords
-from .serializers import OwnersSerializer, UsersSerializer, AnimalsSerializer, HealthRecordsSerializer
+from .models import Owners, Users, Animals, HealthRecords, Admins
+from .serializers import OwnersSerializer, UsersSerializer, AnimalsSerializer, HealthRecordsSerializer, AdminsSerializer
+
 
 def all_user(request):
     return HttpResponse('Return all users')
@@ -35,3 +36,9 @@ class HealthRecordsViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         return HealthRecords.objects.filter(chipped=True)
 
+class AdminsViewSet(viewsets.ModelViewSet):
+    queryset = Admins.objects.all()
+    serializer_class = AdminsSerializer
+
+    def get_queryset(self):
+        return Admins.objects.all()
