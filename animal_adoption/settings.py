@@ -82,13 +82,21 @@ WSGI_APPLICATION = 'animal_adoption.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.db.backends.mysql',
         'NAME': env('DB_NAME'),
         'USER': env('DB_USER'),
         'PASSWORD': env('DB_PASSWORD'),
-        'HOST': env('DB_HOST'),
+        'HOST': env('DB_HOST', default='localhost'),
         'PORT': env('DB_PORT', default='3306'),
 
+    },
+    'replica': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': env('REPLICA_DB_NAME', default='DB_NAME'),
+        'USER': env('REPLICA_DB_USER', default='DB_USER'),
+        'PASSWORD': env('REPLICA_DB_PASSWORD', default='REPLICA_DB_PASSWORD'),
+        'HOST': env('REPLICA_DB_HOST', default='DB_HOST'),
+        'PORT': env('REPLICA_DB_PORT', default='3306'),
     }
 }
 

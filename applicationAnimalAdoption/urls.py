@@ -1,6 +1,6 @@
 from django.urls import path
 from rest_framework.routers import DefaultRouter
-from . import views  # Importuj widoki z pliku views.py
+from . import views  # Importuje widoki z pliku views.py
 
 # Tworzymy router i rejestrujemy widoki
 router = DefaultRouter()
@@ -10,4 +10,6 @@ router.register(r'animals', views.AnimalsViewSet)
 router.register(r'healthrecords', views.HealthRecordsViewSet)
 
 
-urlpatterns = router.urls
+urlpatterns = [
+    path('', views.all_user)
+]

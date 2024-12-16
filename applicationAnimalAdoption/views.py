@@ -1,9 +1,11 @@
 from django.shortcuts import render
-
+from django.http import HttpResponse
 from rest_framework import viewsets
 from .models import Owners, Users, Animals, HealthRecords
 from .serializers import OwnersSerializer, UsersSerializer, AnimalsSerializer, HealthRecordsSerializer
 
+def all_user(request):
+    return HttpResponse('Return all users')
 
 class OwnersViewSet(viewsets.ModelViewSet):
     queryset = Owners.objects.all()
@@ -24,7 +26,7 @@ class AnimalsViewSet(viewsets.ModelViewSet):
     serializer_class = AnimalsSerializer
 
     def get_queryset(self):
-        return Animal.objects.all()
+        return Animals.objects.all()
 
 class HealthRecordsViewSet(viewsets.ModelViewSet):
     queryset = HealthRecords.objects.all()
