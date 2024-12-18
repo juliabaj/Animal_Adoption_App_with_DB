@@ -1,12 +1,26 @@
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.http import HttpResponse
 from rest_framework import viewsets
 from .models import Owners, Users, Animals, HealthRecords, Admins
 from .serializers import OwnersSerializer, UsersSerializer, AnimalsSerializer, HealthRecordsSerializer, AdminsSerializer
+from django.contrib.auth import authenticate, login, logout
+from django.contrib import messages
 
+def home(request):
+    if request.method == 'POST':
+        username = request.POST['Username']
+        password = request.POST['Password']
 
-def all_user(request):
-    return HttpResponse('Return all users')
+        user = authenticate(request, username=username, password=password)
+        if user is not None:
+            login(request, user)
+            return redirect('home')
+
+    return render(request, 'home.html', {})
+
+def logout_user(request):
+    pass
+
 
 class OwnersViewSet(viewsets.ModelViewSet):
     queryset = Owners.objects.all()
