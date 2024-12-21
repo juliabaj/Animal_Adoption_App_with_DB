@@ -1,20 +1,13 @@
 from django.urls import path
-from django.urls import path
 from rest_framework.routers import DefaultRouter
 from . import views  # Importuje widoki z pliku views.py
-
-# Tworzymy router i rejestrujemy widoki
-router = DefaultRouter()
-router.register(r'owners', views.OwnersViewSet)
-router.register(r'users', views.UsersViewSet)
-router.register(r'animals', views.AnimalsViewSet)
-router.register(r'healthrecords', views.HealthRecordsViewSet)
-router.register(r'admins', views.AdminsViewSet)
-
+from .views import OwnersView, AnimalsListView, HealthRecordsView, AdoptionAnimalView, UpdateOwnerStatusView
 
 urlpatterns = [
-    path('', views.home, name='home'),
-    #path('login/', views.login_user, name='login'),
-    path('logout', views.logout_user, name='logout'),
+    path('owners/', views.OwnersView.as_view(), name='owners-list'),
+    path('api/animals/', AnimalsListView.as_view(), name='animals-list'),
+    path('health-records/', HealthRecordsView.as_view(), name='health-records-list'),
+    path('animals/adopt/<int:animal_id>/', AdoptionAnimalView.as_view(), name='adopt-animal'),
+    path('owners/update-status/<int:owner_id>/', UpdateOwnerStatusView.as_view(), name='update-owner-status'),
 
 ]

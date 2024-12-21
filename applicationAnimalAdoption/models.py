@@ -1,24 +1,41 @@
-# This is an auto-generated Django model module.
-# You'll have to do the following manually to clean this up:
-#   * Rearrange models' order
-#   * Make sure each model has one field with primary_key=True
-#   * Make sure each ForeignKey and OneToOneField has `on_delete` set to the desired behavior
-#   * Remove `managed = False` lines if you wish to allow Django to create, modify, and delete the table
-# Feel free to rename the models, but don't rename db_table values or field names.
 from django.db import models
+from django.contrib.auth.models import User
 
 
 class Owners(models.Model):
     owner_id = models.AutoField(primary_key=True)
     owner_name = models.CharField(max_length=50)
+    user = models.OneToOneField(User, on_delete=models.CASCADE)  # Powiązanie z User
     address = models.CharField(max_length=100)
     phone_number = models.CharField(max_length=9)
     email = models.CharField(max_length=50)
+    is_verified = models.CharField(max_length=20, choices=[('unverified', 'Unverified'), ('in_progress', 'In_progress'),
+                                                           ('verified', 'Verified')], default='unverified')
 
-class Users(models.Model):
-    user_id = models.AutoField(primary_key=True)
-    username = models.CharField(max_length=20)
-    passwd = models.CharField(max_length=20)
+    def save(self, *args, **kwargs):
+        if self.is_verified == 'verified':
+            # Link this owner to an animal (example logic)
+            animal = Animals.objects.filter(owner__isnull=True).first()
+            if animal:
+                animal.owner = self
+                animal.save()
+        super().save(*args, **kwargs)
+
+    @property
+    def user_username(self) -> str:
+        return self.user.username
+
+    def __str__(self):
+        return self.user.username
+
+
+# class User(models.Model):
+#     id = models.AutoField(primary_key=True)
+#     username = models.CharField(max_length=20)
+#     password = models.CharField(max_length=20)
+#
+#     def __str__(self):
+#         return self.id
 
 class Animals(models.Model):
     animal_id = models.AutoField(primary_key=True)  # Primary Key
@@ -26,7 +43,13 @@ class Animals(models.Model):
     birth_date = models.DateTimeField()
     species = models.CharField(max_length=20)
     gender = models.CharField(max_length=6, choices=[('male', 'Male'), ('female', 'Female')])
-    owner_id = models.ForeignKey('Owners', on_delete=models.CASCADE)
+    owner = models.ForeignKey('Owners', on_delete=models.CASCADE, null=True, blank=True)
+    adoption_status = models.CharField(max_length=20, choices=[('available', 'Available'), ('pending', 'Pending'),
+                                                               ('adopted', 'Adopted')], default='available')
+
+    def __str__(self):
+        return self.animal_name
+
 
 class HealthRecords(models.Model):
     animal_id = models.ForeignKey('Animals', on_delete=models.CASCADE)
@@ -36,10 +59,14 @@ class HealthRecords(models.Model):
     chipped = models.BooleanField()
     vaccinated = models.BooleanField()
 
+
 class Admins(models.Model):
     admin_id = models.AutoField(primary_key=True)
     username = models.CharField(max_length=20)
     passwd = models.CharField(max_length=20)
+
+    def __str__(self):
+        return self.admin_id
 
 
 class AuthGroup(models.Model):
