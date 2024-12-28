@@ -9,5 +9,4 @@ urlpatterns = [
     path('health-records/', HealthRecordsView.as_view(), name='health-records-list'),
     path('animals/adopt/<int:animal_id>/', AdoptionAnimalView.as_view(), name='adopt-animal'),
     path('owners/update-status/<int:owner_id>/', UpdateOwnerStatusView.as_view(), name='update-owner-status'),
-
 ]

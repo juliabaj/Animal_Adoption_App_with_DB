@@ -15,9 +15,10 @@ class Owners(models.Model):
     def save(self, *args, **kwargs):
         if self.is_verified == 'verified':
             # Link this owner to an animal (example logic)
-            animal = Animals.objects.filter(owner__isnull=True).first()
+            animal = Animals.objects.filter(adoption_status='pending', owner__isnull=True).first()
             if animal:
                 animal.owner = self
+                animal.adoption_status = 'adopted'
                 animal.save()
         super().save(*args, **kwargs)
 
@@ -29,13 +30,6 @@ class Owners(models.Model):
         return self.user.username
 
 
-# class User(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     username = models.CharField(max_length=20)
-#     password = models.CharField(max_length=20)
-#
-#     def __str__(self):
-#         return self.id
 
 class Animals(models.Model):
     animal_id = models.AutoField(primary_key=True)  # Primary Key
@@ -46,6 +40,13 @@ class Animals(models.Model):
     owner = models.ForeignKey('Owners', on_delete=models.CASCADE, null=True, blank=True)
     adoption_status = models.CharField(max_length=20, choices=[('available', 'Available'), ('pending', 'Pending'),
                                                                ('adopted', 'Adopted')], default='available')
+
+
+    def set_adopted(self, owner):
+        """Set animal as adopted and assign an owner."""
+        self.owner = owner
+        self.adoption_status = 'adopted'
+        self.save()
 
     def __str__(self):
         return self.animal_name

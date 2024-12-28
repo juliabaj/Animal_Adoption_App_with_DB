@@ -9,6 +9,8 @@ from .models import Owners, User, Animals, HealthRecords, Admins
 from .serializers import OwnersSerializer, UserSerializer, AnimalsSerializer, HealthRecordsSerializer, AdminsSerializer
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
+import logging
+logger = logging.getLogger(__name__)
 
 class OwnersView(generics.ListAPIView):
     queryset = Owners.objects.all()
@@ -57,25 +59,51 @@ class AdoptionAnimalView(APIView):
 
     def post(self, request, animal_id):
         try:
-            # Znalezienie zwierzęcia według ID
+            # Pobierz zwierzę
             animal = Animals.objects.get(animal_id=animal_id)
-            if animal.adoption_status != 'available':
-                return Response({"detail": "Animal not available for adoption."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Zmiana statusu adopcji
-            animal.adoption_status = 'pending'  # Możesz dodać status 'pending', zanim admin zatwierdzi adopcję
+            # Obsługa różnych statusów adopcji
+            if animal.adoption_status == 'pending':
+                # Sprawdź, czy użytkownik już zgłosił adopcję
+                owner_exists = Owners.objects.filter(user=request.user, animal=animal).exists()
+                if owner_exists:
+                    return Response({"detail": "You have already requested adoption of this animal."},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail": "This animal is already pending adoption by another user."},
+                                status=status.HTTP_400_BAD_REQUEST)
+
+            if animal.adoption_status == 'adopted':
+                return Response({"detail": "This animal has already been adopted."}, status=status.HTTP_400_BAD_REQUEST)
+
+            # Zmień status na 'pending'
+            animal.adoption_status = 'pending'
             animal.save()
+
+            # Tworzenie lub pobranie właściciela
+            owner, created = Owners.objects.get_or_create(
+                user=request.user,
+                defaults={
+                    'owner_name': request.user.username,
+                    'email': request.user.email,
+                    'address': 'Default Address',
+                    'phone_number': '123456789',
+                    'is_verified': 'in_progress',
+                }
+            )
 
             return Response({"detail": "Animal adoption request submitted successfully."}, status=status.HTTP_200_OK)
 
         except Animals.DoesNotExist:
             return Response({"detail": "Animal not found."}, status=status.HTTP_404_NOT_FOUND)
 
+        except Exception as e:
+            return Response({"detail": f"An unexpected error occurred: {str(e)}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class UpdateOwnerStatusView(APIView):
     permission_classes = [IsAdminUser]
 
     def post(self, request, owner_id):
-        owner = Owners.objects.get(id=owner_id)
+        owner = Owners.objects.get(owner_id=owner_id)
         new_status = request.data.get("status")
 
         # Check if the new status is valid
@@ -87,7 +115,25 @@ class UpdateOwnerStatusView(APIView):
 
         # If verified, assign the owner to the animal
         if new_status == "verified":
-            owner.animal.owner = owner
-            owner.animal.save()
+            animal = owner.animal or Animals.objects.filter(adoption_status='pending', owner__isnull=True).first()
+            if animal:
+                animal.set_adopted(owner)
 
         return Response({"detail": "Owner status updated."}, status=200)
+
+
+
+# class TestOwnerCreationView(APIView):
+#     def get(self, request):
+#         from applicationAnimalAdoption.models import Owners, User
+#
+#         user = User.objects.first()  # Pobierz pierwszego użytkownika
+#         owner = Owners.objects.create(
+#             user=user,
+#             owner_name="Test Owner",
+#             email="testowner@example.com",
+#             address="Test Address",
+#             phone_number="123456789",
+#             is_verified="in_progress"
+#         )
+#         return Response({"detail": f"Owner created: {owner}"}, status=status.HTTP_201_CREATED)
