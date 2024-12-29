@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAdminUser
 from rest_framework import status
 from rest_framework.response import Response
+from django.db import connection
 from django.contrib.auth.models import User
 from .models import Owners, User, Animals, HealthRecords, Admins
 from .serializers import OwnersSerializer, UserSerializer, AnimalsSerializer, HealthRecordsSerializer, AdminsSerializer
@@ -120,6 +121,19 @@ class UpdateOwnerStatusView(APIView):
                 animal.set_adopted(owner)
 
         return Response({"detail": "Owner status updated."}, status=200)
+
+
+class SqlInjectionDemoView(APIView):
+    def get(self, request):
+        owner_id = request.GET.get("owner_id", "")    # Pobranie parametru owner_id z URL
+
+        query = f"SELECT * FROM applicationanimaladoption_owners WHERE owner_id = {owner_id}" # Wstawienie parametru bezpośrednio do SQL query
+
+        with connection.cursor() as cursor:
+            cursor.execute(query)  # Wykonanie zapytania
+            results = cursor.fetchall()
+
+        return Response(results)
 
 
 
