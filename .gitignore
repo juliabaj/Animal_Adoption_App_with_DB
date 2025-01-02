@@ -26,3 +26,7 @@ node_modules/
 # Ignorowanie plików systemowych
 .DS_Store
 Thumbs.db
+
+# Ignorowanie danych MySQL
+master_data/
+slave_data/
