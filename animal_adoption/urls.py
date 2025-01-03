@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from applicationAnimalAdoption.views import CreateUserView, AnimalsListView, AdoptionAnimalView, UpdateOwnerStatusView, SqlInjectionDemoView
+from applicationAnimalAdoption.views import CreateUserView, AnimalsListView, AdoptionAnimalView, UpdateOwnerStatusView, SqlInjectionDemoView, HealthRecordsView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from applicationAnimalAdoption import views
 
@@ -12,5 +12,7 @@ urlpatterns = [
     path("api-auth", include("rest_framework.urls")),
     path('api/', include("applicationAnimalAdoption.urls")),
     path('api/animals/', AnimalsListView.as_view(), name='animals-list'),
-    path('vulnerable', SqlInjectionDemoView.as_view(), name='vulnerable-view')
+    path('vulnerable', SqlInjectionDemoView.as_view(), name='vulnerable-view'),
+    path('animals/<int:animal_id>/', HealthRecordsView.as_view(), name='animal-detail'),
+    path('animals/<int:animal_id>/healthrecords/', HealthRecordsView.as_view(), name='animal-healthrecords'),
     ]

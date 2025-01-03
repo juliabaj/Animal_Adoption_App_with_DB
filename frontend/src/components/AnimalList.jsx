@@ -5,6 +5,9 @@ import api from "../api";
 function AnimalList({ route, method }) {
     const [animals, setAnimals] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [healthRecords, setHealthRecords] = useState(null);
+    const [selectedAnimal, setSelectedAnimal] = useState(null);
+    const [animalName, setAnimalName] = useState("");
 
     useEffect(() => {
         const getAnimals = async () => {
@@ -39,6 +42,23 @@ function AnimalList({ route, method }) {
         }
     };
 
+    const handleViewHealthRecords = async (animalId) => {
+        try {
+            const response = await api.get(`/api/animals/${animalId}/healthrecords/`);
+            console.log("[handleViewHealthRecords] Response data:", response.data);
+
+            const data = response.data;
+
+            setHealthRecords(data.health_records);
+            setAnimalName(data.animal.animal_name);
+            setSelectedAnimal(animalId);
+        } catch (error) {
+            console.error("Error fetching health records:", error);
+            alert("An error occurred while fetching health records.");
+        }
+    };
+
+
     if (loading) {
         return <div>Loading animals...</div>;
     }
@@ -61,9 +81,35 @@ function AnimalList({ route, method }) {
                         >
                             Adopt
                         </button>
+                        <button
+                            className="health-records-button"
+                            onClick={() => {
+                                console.log("Clicked View Health Records for animal_id =", animal.animal_id);
+                                handleViewHealthRecords(animal.animal_id);
+                            }}
+                        >
+                            View Health Records
+                        </button>
                     </div>
                 ))}
             </div>
+            {healthRecords && selectedAnimal && (
+                <div className="health-records">
+                    <h2>Health Records for {animalName}</h2>
+                    <ul>
+                        {healthRecords.map((record, index) => (
+                            <li key={index}>
+                                <p>Diagnosis: {record.diagnosis}</p>
+                                <p>Veterinarian: {record.veterinarian}</p>
+                                <p>Treatment: {record.treatment}</p>
+                                <p>Chipped: {record.chipped ? "Yes" : "No"}</p>
+                                <p>Vaccinated: {record.vaccinated ? "Yes" : "No"}</p>
+                            </li>
+                        ))}
+                    </ul>
+                    <button onClick={() => setHealthRecords(null)}>Close</button>
+                </div>
+            )}
         </div>
     );
 }

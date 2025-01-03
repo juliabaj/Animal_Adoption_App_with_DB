@@ -11,7 +11,9 @@ from .serializers import OwnersSerializer, UserSerializer, AnimalsSerializer, He
 from rest_framework.permissions import IsAuthenticated, AllowAny
 
 import logging
+
 logger = logging.getLogger(__name__)
+
 
 class OwnersView(generics.ListAPIView):
     queryset = Owners.objects.all()
@@ -39,12 +41,29 @@ class AnimalsListView(APIView):
         return Response(serializer.data)
 
 
-class HealthRecordsView(generics.ListAPIView):
-    queryset = HealthRecords.objects.all()
-    serializer_class = HealthRecordsSerializer
+class HealthRecordsView(APIView):
+    def get(self, request, animal_id):
+        try:
+            animal = Animals.objects.get(animal_id=animal_id)
+            health_records = HealthRecords.objects.filter(animal_id=animal)
 
-    def get_queryset(self):
-        return HealthRecords.objects.filter(chipped=True)
+            animal_data = {
+                "animal_id": animal.animal_id,
+                "animal_name": animal.animal_name,
+            }
+
+            serializer = HealthRecordsSerializer(health_records, many=True)
+
+            return Response({
+                "animal": animal_data,
+                "health_records": serializer.data
+            }, status=status.HTTP_200_OK)
+
+        except Animals.DoesNotExist:
+            return Response({"detail": "Animal not found."}, status=status.HTTP_404_NOT_FOUND)
+        except Exception as e:
+            return Response({"detail": f"An unexpected error occurred: {str(e)}"},
+                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class AdminsView(generics.ListAPIView):
@@ -60,12 +79,12 @@ class AdoptionAnimalView(APIView):
 
     def post(self, request, animal_id):
         try:
-            # Pobierz zwierzę
+            # Pobieranie zwierzęcia
             animal = Animals.objects.get(animal_id=animal_id)
 
-            # Obsługa różnych statusów adopcji
+            # różne statusy adopcji
             if animal.adoption_status == 'pending':
-                # Sprawdź, czy użytkownik już zgłosił adopcję
+                # Sprawdzenie, czy użytkownik już zgłosił adopcję
                 owner_exists = Owners.objects.filter(user=request.user, animal=animal).exists()
                 if owner_exists:
                     return Response({"detail": "You have already requested adoption of this animal."},
@@ -76,7 +95,7 @@ class AdoptionAnimalView(APIView):
             if animal.adoption_status == 'adopted':
                 return Response({"detail": "This animal has already been adopted."}, status=status.HTTP_400_BAD_REQUEST)
 
-            # Zmień status na 'pending'
+            # Zmiana statusu na 'pending'
             animal.adoption_status = 'pending'
             animal.save()
 
@@ -100,6 +119,8 @@ class AdoptionAnimalView(APIView):
         except Exception as e:
             return Response({"detail": f"An unexpected error occurred: {str(e)}"},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
 class UpdateOwnerStatusView(APIView):
     permission_classes = [IsAdminUser]
 
@@ -125,17 +146,15 @@ class UpdateOwnerStatusView(APIView):
 
 class SqlInjectionDemoView(APIView):
     def get(self, request):
-        owner_id = request.GET.get("owner_id", "")    # Pobranie parametru owner_id z URL
+        owner_id = request.GET.get("owner_id", "")  # Pobranie parametru owner_id z URL
 
-        query = f"SELECT * FROM applicationanimaladoption_owners WHERE owner_id = {owner_id}" # Wstawienie parametru bezpośrednio do SQL query
+        query = f"SELECT * FROM applicationanimaladoption_owners WHERE owner_id = {owner_id}"  # Wstawienie parametru bezpośrednio do SQL query
 
         with connection.cursor() as cursor:
             cursor.execute(query)  # Wykonanie zapytania
             results = cursor.fetchall()
 
         return Response(results)
-
-
 
 # class TestOwnerCreationView(APIView):
 #     def get(self, request):
