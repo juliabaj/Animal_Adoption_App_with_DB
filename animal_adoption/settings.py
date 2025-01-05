@@ -158,7 +158,7 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOWED_ORIGINS = [
-    "http://localhost:5173",
+    "https://localhost:5173",
 ]
 CORS_ALLOWS_CREDENTIALS = True
 
@@ -182,4 +182,11 @@ LOGGING = {
         },
     },
 }
-#DATABASE_ROUTERS = ['animal_adoption.database_router.MasterSlaveRouter']
+DATABASE_ROUTERS = ['animal_adoption.database_router.MasterSlaveRouter']
+
+# Security settings
+import os
+
+SECURE_SSL_REDIRECT = not os.getenv('DEBUG', 'False') == 'True'
+SESSION_COOKIE_SECURE = True  # Ciasteczka sesji tylko przez HTTPS
+CSRF_COOKIE_SECURE = True  # CSRF ciasteczka tylko przez HTTPS

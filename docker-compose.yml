@@ -3,18 +3,18 @@ services:
   mysql-master:
     image: mysql:8.0
     volumes:
-      - mysql-replica-main:/tmp
+      - mysql-replica-main:/var/lib/mysql
     command:
       [
         "mysqld",
-        "--datadir=/tmp/mysqldata-replica-main",
-        "--binding-address: 0.0.0.0",
+        "--datadir=/var/lib/mysql",
+        "--bind-address=0.0.0.0",
         "--log-bin=bin.log",
         "--server-id=1"
       ]
     environment:
       &mysql-default-environment
-      MYSQL_ROOT_PASSWORD: *********
+      MYSQL_ROOT_PASSWORD: Ap16pb13kp835*
       MYSQL_DATABASE: adoption
       MYSQL_USER: replica
       MYSQL_PASSWORD: Password@123
@@ -23,11 +23,11 @@ services:
   mysql-slave:
     image: mysql:8.0
     volumes:
-      - mysql-replica-read:/tmp
+      - mysql-replica-read:/var/lib/mysql
     command:
       [
         "mysqld",
-        "--datadir=/tmp/mysqldata-replica-read",
+        "--datadir=/var/lib/mysql",
         "--log-bin=bin.log",
         "--server-id=2"
       ]
