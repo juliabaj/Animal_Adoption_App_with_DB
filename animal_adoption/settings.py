@@ -182,4 +182,4 @@ LOGGING = {
         },
     },
 }
-DATABASE_ROUTERS = ['animal_adoption.database_router.MasterSlaveRouter']
+#DATABASE_ROUTERS = ['animal_adoption.database_router.MasterSlaveRouter']
