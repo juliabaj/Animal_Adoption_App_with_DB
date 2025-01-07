@@ -16,7 +16,7 @@ services:
       ]
     environment:
       &mysql-default-environment
-      MYSQL_ROOT_PASSWORD: ************
+      MYSQL_ROOT_PASSWORD: *************
       MYSQL_DATABASE: adoption
       MYSQL_USER: replica
       MYSQL_PASSWORD: Password@123
