@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from applicationAnimalAdoption.views import CreateUserView, AnimalsListView, AdoptionAnimalView, UpdateOwnerStatusView, SqlInjectionDemoView, HealthRecordsView
+from applicationAnimalAdoption.views import CreateUserView, AnimalsListView, AdoptionAnimalView, UpdateOwnerStatusView, SqlInjectionDemoView, HealthRecordsView, SqlInjectionSearchBar
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 from applicationAnimalAdoption import views
 
@@ -15,4 +15,5 @@ urlpatterns = [
     path('vulnerable', SqlInjectionDemoView.as_view(), name='vulnerable-view'),
     path('animals/<int:animal_id>/', HealthRecordsView.as_view(), name='animal-detail'),
     path('animals/<int:animal_id>/healthrecords/', HealthRecordsView.as_view(), name='animal-healthrecords'),
+    path("api/sql/", SqlInjectionSearchBar.as_view(), name="sql_injection_demo"),
     ]

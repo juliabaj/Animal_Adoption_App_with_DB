@@ -38,7 +38,7 @@ class AnimalsListView(APIView):
     def get(self, request):
         animals = Animals.objects.all()
         serializer = AnimalsSerializer(animals, many=True)
-        return Response(serializer.data)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 class HealthRecordsView(APIView):
@@ -155,6 +155,28 @@ class SqlInjectionDemoView(APIView):
             results = cursor.fetchall()
 
         return Response(results)
+
+
+class SqlInjectionSearchBar(APIView):
+    def get(self, request):
+        # Pobranie zapytania SQL z parametru `query`
+        raw_query = request.GET.get("query", "")
+
+        if not raw_query:
+            return Response({"error": "No query provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            # Wykonanie surowego zapytania SQL (niezabezpieczonego!)
+            with connection.cursor() as cursor:
+                cursor.execute(raw_query)
+                results = cursor.fetchall()
+                columns = [col[0] for col in cursor.description]
+                formatted_results = [dict(zip(columns, row)) for row in results]
+
+            return Response({"results": formatted_results}, status=status.HTTP_200_OK)
+
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # class TestOwnerCreationView(APIView):
 #     def get(self, request):

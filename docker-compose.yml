@@ -16,8 +16,8 @@ services:
       ]
     environment:
       &mysql-default-environment
-      MYSQL_ROOT_PASSWORD: *************
-      MYSQL_DATABASE: adoption
+      MYSQL_ROOT_PASSWORD: L4rrydir3ctioner5!
+      MYSQL_DATABASE: bazy_danych
       MYSQL_USER: replica
       MYSQL_PASSWORD: Password@123
     ports:
@@ -49,7 +49,7 @@ services:
       - mynetwork
     restart: always
     volumes:
-      - "C:/Users/natal/Documents/adoption_db_backup:/backup"
+      - "C:/Users/julia/Documents/adoption_db_backup:/backup"
     environment:
       <<: *mysql-default-environment
       CRON_TIME: 0 0 * * *

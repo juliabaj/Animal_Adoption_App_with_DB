@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import api from "../api";
-
+import ReactModal from "react-modal";
 
 function AnimalList({ route, method }) {
     const [animals, setAnimals] = useState([]);
@@ -8,6 +8,7 @@ function AnimalList({ route, method }) {
     const [healthRecords, setHealthRecords] = useState(null);
     const [selectedAnimal, setSelectedAnimal] = useState(null);
     const [animalName, setAnimalName] = useState("");
+    const [isModalOpen, setIsModalOpen] = useState(false);
 
     useEffect(() => {
         const getAnimals = async () => {
@@ -52,10 +53,17 @@ function AnimalList({ route, method }) {
             setHealthRecords(data.health_records);
             setAnimalName(data.animal.animal_name);
             setSelectedAnimal(animalId);
+            setIsModalOpen(true);
         } catch (error) {
             console.error("Error fetching health records:", error);
             alert("An error occurred while fetching health records.");
         }
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+        setHealthRecords(null);
+        setSelectedAnimal(null);
     };
 
 
@@ -65,7 +73,7 @@ function AnimalList({ route, method }) {
 
     return (
         <div>
-            <h1>Animals Available for Adoption</h1>
+            <h1>Animals for Adoption</h1>
             <div className="animals-list">
                 {animals.map((animal) => (
                     <div key={animal.animal_id} className="animal-item">
@@ -93,9 +101,21 @@ function AnimalList({ route, method }) {
                     </div>
                 ))}
             </div>
-            {healthRecords && selectedAnimal && (
-                <div className="health-records">
-                    <h2>Health Records for {animalName}</h2>
+
+            {/* Modal */}
+            <ReactModal
+                isOpen={isModalOpen}
+                onRequestClose={closeModal}
+                contentLabel="Health Records Modal"
+                ariaHideApp={false}
+                style={{
+                    overlay: { backgroundColor: "rgba(0, 0, 0, 0.75)" },
+                    content: { margin: "auto", width: "50%", padding: "20px" },
+                }}
+            >
+
+                <h2>Health Records for {animalName}</h2>
+                {healthRecords && (
                     <ul>
                         {healthRecords.map((record, index) => (
                             <li key={index}>
@@ -107,9 +127,9 @@ function AnimalList({ route, method }) {
                             </li>
                         ))}
                     </ul>
-                    <button onClick={() => setHealthRecords(null)}>Close</button>
-                </div>
-            )}
+                )}
+                <button onClick={closeModal}>Close</button>
+            </ReactModal>
         </div>
     );
 }
